@@ -1,0 +1,1 @@
+LOAD DATA LOCAL INFILE 'C:\\Users\\dogus\\Documents\\1-dersler\\tez1\\2.donem\\python\\Result_04-04-2021_23.47.50' INTO TABLE earthquake FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' IGNORE 1 ROWS (datetime,lat,lon,depth,magnitude);
