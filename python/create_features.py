@@ -13,7 +13,7 @@ now = dt.now().strftime("%d-%m-%Y_%H.%M.%S")
 outputFileName = "extended_earthquake_" + str(now) + ".csv"
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-i","--input", help="Paths of input file", default="earthquake_6_2021_04_05.csv")
+parser.add_argument("-i","--input", help="Paths of input file", default="C:\\Users\dogus\\Documents\\1-dersler\\tez1\\2.donem\\data\\all_earthquakes_2021_04_05.csv")
 parser.add_argument("-o","--output", help="Paths of output file", default=outputFileName)
 parser.add_argument("-b","--backward", help="backward size", default=30)
 args = parser.parse_args()
@@ -73,6 +73,9 @@ current_part_depth = []
 current_part_lat = []
 current_part_lon = []
 current_part_datetime = []
+
+# LOCATİON LABELS
+location_labels = []
 size = 0
 for index, row in df.iterrows():
     if  size >= args.backward:
@@ -173,11 +176,49 @@ for index, row in df.iterrows():
         skew_datetime.append(None)
         kurtosis_datetime.append(None)
     
+    lat = row['lat']
+    lon = row['lon']
+
     current_part_magnitude.append(row['magnitude'])
     current_part_depth.append(row['depth'])
-    current_part_lat.append(row['lat'])
-    current_part_lon.append(row['lon'])
+    current_part_lat.append(lat)
+    current_part_lon.append(lon)
     current_part_datetime.append(row['datetime'].timestamp())
+
+    # LOCATION LABELS
+    if lon < 30 and lon >= 26 and lat >= 40 and lat <= 42:
+        location_labels.append(1)
+    elif lon < 34 and lon >= 30 and lat >= 40 and lat <= 42:
+        location_labels.append(2)
+    elif lon < 38 and lon >= 34 and lat >= 40 and lat <= 42:
+        location_labels.append(3)
+    elif lon < 42 and lon >= 38 and lat >= 40 and lat <= 42:
+        location_labels.append(4)
+    elif lon <= 45 and lon >= 42 and lat >= 40 and lat <= 42:
+        location_labels.append(5)
+    elif lon < 30 and lon >= 26 and lat >= 38 and lat < 40:
+        location_labels.append(6)
+    elif lon < 34 and lon >= 30 and lat >= 38 and lat < 40:
+        location_labels.append(7)
+    elif lon < 38 and lon >= 34 and lat >= 38 and lat < 40:
+        location_labels.append(8)
+    elif lon < 42 and lon >= 38 and lat >= 38 and lat < 40:
+        location_labels.append(9)
+    elif lon <= 45 and lon >= 42 and lat >= 38 and lat < 40:
+        location_labels.append(10)
+    elif lon < 30 and lon >= 26 and lat >= 36 and lat < 38:
+        location_labels.append(11)
+    elif lon < 34 and lon >= 30 and lat >= 36 and lat < 38:
+        location_labels.append(12)
+    elif lon < 38 and lon >= 34 and lat >= 36 and lat < 38:
+        location_labels.append(13)
+    elif lon < 42 and lon >= 38 and lat >= 36 and lat < 38:
+        location_labels.append(14)
+    elif lon <= 45 and lon >= 42 and lat >= 36 and lat < 38:
+        location_labels.append(15)
+    else:
+        location_labels.append(-1)
+
     size += 1
 
 
@@ -216,5 +257,7 @@ df['mean_datetime'] = mean_datetime
 df['median_datetime'] = median_datetime
 df['variance_datetime'] = variance_datetime
 df['kurtosis_datetime'] = kurtosis_datetime
+
+df['location_labels'] = location_labels
 
 df.to_csv(outputFileName, index=False)
