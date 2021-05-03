@@ -1,12 +1,50 @@
-%% Load data and splite train and test
-data = readmatrix('../data/6_earthquake_magnitude_bigger_than_4_2021_04_05_extended.csv')
+%% Load data
+filePath = '../data/all_earthquake_magnitude_bigger_than_4_2021_04_05_with_timestamp.csv';
+opts = detectImportOptions(filePath);
+preview(filePath,opts);
+data = readmatrix(filePath);
 
-numTimeStepsTrain = height(data) - 50; %floor(0.95*numel(data));
+% Preprocessing
+backward_size = 30;
+data_height = height(data);
+data_width = width(data);
 
-XTrain = {data(31:numTimeStepsTrain+1, 6:11).'};%[2:4 6:29 end] [4 6:17]
-YTrain = {data(31:numTimeStepsTrain+1,5).'};
+newCols = zeros(data_height, backward_size);
+newRow = zeros(1, backward_size); 
+minCol = zeros(data_height, 1);
+maxCol = zeros(data_height, 1);
+meanCol = zeros(data_height, 1);
+medianCol = zeros(data_height, 1);
+varCol = zeros(data_height, 1);
+skewnessCol = zeros(data_height, 1);
+kurtosisCol = zeros(data_height, 1);
 
-XTest = {data(numTimeStepsTrain+1:end, 6:11).'};
+for i = 1:length(data)
+    % last "backward" value of the column
+    newCols(i,:) = newRow;
+    % some features from backward values
+    if i > backward_size
+        minCol(i) = min(newRow);
+        maxCol(i) = max(newRow);
+        meanCol(i) = mean(newRow);
+        medianCol(i) = median(newRow);
+        varCol(i) = var(newRow);
+        skewnessCol(i) = skewness(newRow);
+        kurtosisCol(i) = kurtosis(newRow);
+    end
+    newRow(1) = [];
+    newRow(end + 1) = data(i,5);
+end
+
+data = [data newCols minCol maxCol meanCol medianCol varCol skewnessCol kurtosisCol];
+
+%% Splite train and test
+numTimeStepsTrain = height(data) - 100; %floor(0.95*numel(data));
+
+XTrain = {data(backward_size+1:numTimeStepsTrain+1, 7:43).'};
+YTrain = {data(backward_size+1:numTimeStepsTrain+1,5).'};
+
+XTest = {data(numTimeStepsTrain+1:end, 7:43).'};
 YTest = {data(numTimeStepsTrain+1:end,5).'};
 
 
@@ -24,7 +62,7 @@ layers = [ ...
     regressionLayer];
 
 
-maxEpochs = 200;
+maxEpochs = 500;
 miniBatchSize = 20;
 
 options = trainingOptions('adam', ...
