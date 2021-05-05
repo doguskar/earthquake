@@ -1,51 +1,32 @@
 %% Load data
-filePath = '../data/all_earthquake_magnitude_bigger_than_4_2021_04_05_with_timestamp.csv';
+% data cols -> datetime,lat,lon,depth,magnitude,timestamp
+
+filePath = '../data/earthquakes_2021_05_05_with_timestamp_and_location_label.csv';
 opts = detectImportOptions(filePath);
 preview(filePath,opts);
 data = readmatrix(filePath);
 
+% Filter data
+data = filterData(data);
 % Preprocessing
 backward_size = 30;
-data_height = height(data);
-data_width = width(data);
 
-newCols = zeros(data_height, backward_size);
-newRow = zeros(1, backward_size); 
-minCol = zeros(data_height, 1);
-maxCol = zeros(data_height, 1);
-meanCol = zeros(data_height, 1);
-medianCol = zeros(data_height, 1);
-varCol = zeros(data_height, 1);
-skewnessCol = zeros(data_height, 1);
-kurtosisCol = zeros(data_height, 1);
+newMagnitudeCols = createFeature(data(:,5), backward_size);     % 7                             ->  7 + backward_size + 7
+newDepthCols = createFeature(data(:,4), backward_size);         % 8 + backward_size + 7         ->  8 + 2x(backward_size + 7)
+newTimestampCols = createFeature(data(:,6), backward_size);     % 9 + 2x(backward_size + 7)     ->  9 + 3x(backward_size + 7)
+newLatCols = createFeature(data(:,2), backward_size);
+newLonCols = createFeature(data(:,3), backward_size);
 
-for i = 1:length(data)
-    % last "backward" value of the column
-    newCols(i,:) = newRow;
-    % some features from backward values
-    if i > backward_size
-        minCol(i) = min(newRow);
-        maxCol(i) = max(newRow);
-        meanCol(i) = mean(newRow);
-        medianCol(i) = median(newRow);
-        varCol(i) = var(newRow);
-        skewnessCol(i) = skewness(newRow);
-        kurtosisCol(i) = kurtosis(newRow);
-    end
-    newRow(1) = [];
-    newRow(end + 1) = data(i,5);
-end
-
-data = [data newCols minCol maxCol meanCol medianCol varCol skewnessCol kurtosisCol];
+data = [data newMagnitudeCols newDepthCols newTimestampCols newLatCols newLonCols];
 
 %% Splite train and test
-numTimeStepsTrain = height(data) - 100; %floor(0.95*numel(data));
+numTimeStepsTrain = length(data) - 50; %floor(0.95*numel(data));
 
 XTrain = {data(backward_size+1:numTimeStepsTrain+1, 7:43).'};
-YTrain = {data(backward_size+1:numTimeStepsTrain+1,5).'};
+YTrain = {data(backward_size+1:numTimeStepsTrain+1, 5).'};
 
 XTest = {data(numTimeStepsTrain+1:end, 7:43).'};
-YTest = {data(numTimeStepsTrain+1:end,5).'};
+YTest = {data(numTimeStepsTrain+1:end, 5).'};
 
 
 %% Create model
@@ -62,10 +43,11 @@ layers = [ ...
     regressionLayer];
 
 
-maxEpochs = 500;
+maxEpochs = 100;
 miniBatchSize = 20;
 
 options = trainingOptions('adam', ...
+    'ExecutionEnvironment','auto', ...
     'MaxEpochs',maxEpochs, ...
     'MiniBatchSize',miniBatchSize, ...
     'InitialLearnRate',0.01, ...
