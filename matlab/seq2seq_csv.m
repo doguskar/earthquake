@@ -22,14 +22,14 @@ data = [data newMagnitudeCols newDepthCols newTimestampCols newLatCols newLonCol
 %% Splite train and test
 numTimeStepsTrain = length(data) - 50; %floor(0.95*numel(data));
 
-featureColumns = [8:44 45:75];
-magnitudeColumn = 5;
+featureColumns = [8:44 45:81];
+wantedColumns = [5 4];
 
 XTrain = {data(backward_size+1:numTimeStepsTrain+1, featureColumns).'};
-YTrain = {data(backward_size+1:numTimeStepsTrain+1, magnitudeColumn).'};
+YTrain = {data(backward_size+1:numTimeStepsTrain+1, wantedColumns).'};
 
 XTest = {data(numTimeStepsTrain+1:end, featureColumns).'};
-YTest = {data(numTimeStepsTrain+1:end, magnitudeColumn).'};
+YTest = {data(numTimeStepsTrain+1:end, wantedColumns).'};
 
 %{
 mu = mean([XTrain{:}],2);
@@ -61,7 +61,7 @@ layers = [ ...
     regressionLayer];
 
 
-maxEpochs = 200;
+maxEpochs = 500;
 miniBatchSize = 100;
 
 options = trainingOptions('adam', ...
@@ -81,7 +81,47 @@ net = trainNetwork(XTrain,YTrain,layers,options);
 YPred = predict(net,XTest,'MiniBatchSize',1);
 
 %% Show result
+YTestMagnitude = YTest{1}(1,:);
+YPredMagnitude = YPred{1}(1,:);
+YPredDepth = YPred{1}(2,:);
+YTestDepth = YTest{1}(2,:);
 
+rmseMagnitude = sqrt(mean((YPredMagnitude-YTestMagnitude).^2));
+rmseDepth = sqrt(mean((YPredDepth-YTestDepth).^2));
+
+figure
+subplot(2,2,1)
+plot(YTestMagnitude)
+hold on
+plot(YPredMagnitude,'.-')
+hold off
+legend(["Observed" "Forecast"])
+ylabel("Magnitude")
+title("Forecast")
+
+subplot(2,2,2)
+plot(YTestDepth)
+hold on
+plot(YPredDepth,'.-')
+hold off
+legend(["Observed" "Forecast"])
+ylabel("Depth")
+title("Forecast")
+
+subplot(2,2,3)
+stem(YPredMagnitude -YTestMagnitude)
+xlabel("Days")
+ylabel("Error")
+title("Magnitude RMSE = " + rmseMagnitude)
+
+subplot(2,2,4)
+stem(YPredDepth - YTestDepth)
+xlabel("Days")
+ylabel("Error")
+title("Depth RMSE = " + rmseDepth)
+
+
+%{
 rmse = sqrt(mean((YPred{1}-YTest{1}).^2));
 
 figure
@@ -99,6 +139,8 @@ stem(YPred{1} - YTest{1})
 xlabel("Days")
 ylabel("Error")
 title("RMSE = " + rmse)
+%}
+
 
 
 
