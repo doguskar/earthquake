@@ -1,5 +1,5 @@
 function filtered_data = filterData(data)
-    filtered_data = zeros(1, width(data));
+    filtered_data = zeros(1, size(data,2));
     for i = 1:length(data)
         current_magnitude = data(i,5);
         current_location_label = data(i,7);
