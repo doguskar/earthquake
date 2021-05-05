@@ -1,5 +1,5 @@
 %% Load data
-% data cols -> datetime,lat,lon,depth,magnitude,timestamp
+% data cols -> datetime,lat,lon,depth,magnitude,timestamp,location_label
 
 filePath = '../data/earthquakes_2021_05_05_with_timestamp_and_location_label.csv';
 opts = detectImportOptions(filePath);
@@ -11,9 +11,9 @@ data = filterData(data);
 % Preprocessing
 backward_size = 30;
 
-newMagnitudeCols = createFeature(data(:,5), backward_size);     % 7                             ->  7 + backward_size + 7
-newDepthCols = createFeature(data(:,4), backward_size);         % 8 + backward_size + 7         ->  8 + 2x(backward_size + 7)
-newTimestampCols = createFeature(data(:,6), backward_size);     % 9 + 2x(backward_size + 7)     ->  9 + 3x(backward_size + 7)
+newMagnitudeCols = createFeature(data(:,5), backward_size);     % 8                             ->  8 + backward_size + 7
+newDepthCols = createFeature(data(:,4), backward_size);         % 9 + backward_size + 7         ->  9 + 2x(backward_size + 7)
+newTimestampCols = createFeature(data(:,6), backward_size);     % 10 + 2x(backward_size + 7)     ->  10 + 3x(backward_size + 7)
 newLatCols = createFeature(data(:,2), backward_size);
 newLonCols = createFeature(data(:,3), backward_size);
 
