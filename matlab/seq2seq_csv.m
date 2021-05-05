@@ -22,10 +22,10 @@ data = [data newMagnitudeCols newDepthCols newTimestampCols newLatCols newLonCol
 %% Splite train and test
 numTimeStepsTrain = length(data) - 50; %floor(0.95*numel(data));
 
-XTrain = {data(backward_size+1:numTimeStepsTrain+1, 7:43).'};
+XTrain = {data(backward_size+1:numTimeStepsTrain+1, 8:44).'};
 YTrain = {data(backward_size+1:numTimeStepsTrain+1, 5).'};
 
-XTest = {data(numTimeStepsTrain+1:end, 7:43).'};
+XTest = {data(numTimeStepsTrain+1:end, 8:44).'};
 YTest = {data(numTimeStepsTrain+1:end, 5).'};
 
 
