@@ -22,15 +22,33 @@ data = [data newMagnitudeCols newDepthCols newTimestampCols newLatCols newLonCol
 %% Splite train and test
 numTimeStepsTrain = length(data) - 50; %floor(0.95*numel(data));
 
-XTrain = {data(backward_size+1:numTimeStepsTrain+1, 8:44).'};
-YTrain = {data(backward_size+1:numTimeStepsTrain+1, 5).'};
+featureColumns = [8:44 45:75];
+magnitudeColumn = 5;
 
-XTest = {data(numTimeStepsTrain+1:end, 8:44).'};
-YTest = {data(numTimeStepsTrain+1:end, 5).'};
+XTrain = {data(backward_size+1:numTimeStepsTrain+1, featureColumns).'};
+YTrain = {data(backward_size+1:numTimeStepsTrain+1, magnitudeColumn).'};
 
+XTest = {data(numTimeStepsTrain+1:end, featureColumns).'};
+YTest = {data(numTimeStepsTrain+1:end, magnitudeColumn).'};
+
+%{
+mu = mean([XTrain{:}],2);
+sig = std([XTrain{:}],0,2);
+
+for i = 1:numel(XTrain)
+    XTrain{i} = (XTrain{i} - mu) ./ sig;
+end
+
+mu = mean([XTest{:}],2);
+sig = std([XTest{:}],0,2);
+
+for i = 1:numel(XTest)
+    XTest{i} = (XTest{i} - mu) ./ sig;
+end
+%}
 
 %% Create model
-numFeatures = size(XTrain{1},1)
+numFeatures = size(XTrain{1},1);
 numResponses = size(YTrain{1},1);
 numHiddenUnits = 200;
 
@@ -43,8 +61,8 @@ layers = [ ...
     regressionLayer];
 
 
-maxEpochs = 100;
-miniBatchSize = 20;
+maxEpochs = 200;
+miniBatchSize = 100;
 
 options = trainingOptions('adam', ...
     'ExecutionEnvironment','auto', ...
@@ -64,7 +82,7 @@ YPred = predict(net,XTest,'MiniBatchSize',1);
 
 %% Show result
 
-rmse = sqrt(mean((YPred{1}-YTest{1}).^2))
+rmse = sqrt(mean((YPred{1}-YTest{1}).^2));
 
 figure
 subplot(2,1,1)
