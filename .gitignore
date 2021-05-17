@@ -1,0 +1,9 @@
+*.asv
+data/backup
+*_backup.sql
+python/*.csv
+python/lstm*.py
+python/lstm*.py
+python/*.txt
+location.py
+main.py
