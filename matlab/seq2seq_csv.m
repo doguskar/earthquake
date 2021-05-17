@@ -1,13 +1,12 @@
 %% Load data
 % data cols -> datetime,lat,lon,depth,magnitude,timestamp,location_label
-
-filePath = '../data/earthquakes_2021_05_05_with_timestamp_and_location_label.csv';
-opts = detectImportOptions(filePath);
-preview(filePath,opts);
-data = readmatrix(filePath);
+loadData;
 
 % Filter data
-data = filterData(data);
+bigger_than_magnitude = 5;
+location_label = 6; %declare -1 for all locations 
+data = filterData(data, bigger_than_magnitude, location_label);
+
 % Preprocessing
 backward_size = 30;
 
@@ -20,10 +19,11 @@ newLonCols = createFeature(data(:,3), backward_size);
 data = [data newMagnitudeCols newDepthCols newTimestampCols newLatCols newLonCols];
 
 %% Splite train and test
-numTimeStepsTrain = length(data) - 50; %floor(0.95*numel(data));
+test_size = 50;
+numTimeStepsTrain = length(data) - test_size;
 
-featureColumns = [8:44 45:81];
-wantedColumns = [5 4];
+featureColumns = [8:44 45:81 82:192];
+wantedColumns = 5; %[5 4]
 
 XTrain = {data(backward_size+1:numTimeStepsTrain+1, featureColumns).'};
 YTrain = {data(backward_size+1:numTimeStepsTrain+1, wantedColumns).'};
@@ -46,6 +46,18 @@ for i = 1:numel(XTest)
     XTest{i} = (XTest{i} - mu) ./ sig;
 end
 %}
+% Standardize data
+mu = mean([XTrain{:}],2);
+sig = std([XTrain{:}],0,2);
+
+for i = 1:numel(XTrain)
+    XTrain{i} = (XTrain{i} - mu) ./ sig;
+end
+
+for i = 1:numel(XTest)
+    XTest{i} = (XTest{i} - mu) ./ sig;
+end
+
 
 %% Create model
 numFeatures = size(XTrain{1},1);
@@ -61,8 +73,9 @@ layers = [ ...
     regressionLayer];
 
 
-maxEpochs = 500;
+maxEpochs = 200;
 miniBatchSize = 100;
+initialLearnRate = 0.01;
 
 options = trainingOptions('adam', ...
     'ExecutionEnvironment','auto', ...
@@ -81,6 +94,7 @@ net = trainNetwork(XTrain,YTrain,layers,options);
 YPred = predict(net,XTest,'MiniBatchSize',1);
 
 %% Show result
+%{
 YTestMagnitude = YTest{1}(1,:);
 YPredMagnitude = YPred{1}(1,:);
 YPredDepth = YPred{1}(2,:);
@@ -120,8 +134,8 @@ xlabel("Days")
 ylabel("Error")
 title("Depth RMSE = " + rmseDepth)
 
+%}
 
-%{
 rmse = sqrt(mean((YPred{1}-YTest{1}).^2));
 
 figure
@@ -139,7 +153,7 @@ stem(YPred{1} - YTest{1})
 xlabel("Days")
 ylabel("Error")
 title("RMSE = " + rmse)
-%}
+
 
 
 
