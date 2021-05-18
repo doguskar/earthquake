@@ -12,14 +12,27 @@ end
 location_lables(:,1) = [];
 
 %%
+filterKeySet = {
+    'bigger_than_magnitude' ...
+    'location_label'
+};
+filterValueSet = {
+    3 ...
+    0
+};
+filterOptMap = containers.Map(filterKeySet,filterValueSet);
+
 bar(magnitudes)
 for k = 1:size(magnitudes,2)
     earthquake_counts = [];
-    current_data_all_locations = filterData(data, magnitudes(k), -1);
+    filterOptMap('bigger_than_magnitude') = magnitudes(k);
+    filterOptMap('location_label') = 0;
+    current_data_all_locations = filterData(data, filterOptMap);
+    
     for i = 1:size(locations,2)
-        current_data = filterData(data, magnitudes(k), locations(i));
+        filterOptMap('location_label') = locations(i);
+        current_data = filterData(data, filterOptMap);
         earthquake_counts(end+1) = size(current_data,1); 
-        
     end
     
     magnitude_str = strrep("" + magnitudes(k),".","_");
@@ -52,33 +65,44 @@ for k = 1:size(magnitudes,2)
     
 end
 
-
 %%
-keySet = {'Jan','Feb','Mar','Apr'};
-valueSet = {327.2 368.2 197.6 "asdas"};
-M = containers.Map(keySet,valueSet);
-if ~isKey(M,'test')
-    disp('yes')
+filterKeySet = {
+    'bigger_than_magnitude' ...
+    'bigger_than_timestamp'
+};
+filterValueSet = {
+    3 ...
+    0
+};
+filterOptMap = containers.Map(filterKeySet,filterValueSet);
+locations = 0:15;
+for i = 1:16
+    filterOptMap('location_label') = locations(i);
+    current_data = filterData(data, filterOptMap);
+
+    % Scatters
+    scatter(current_data(:,6),current_data(:,5))
+    magnitude_count_str = size(current_data,1);
+    ylabel("Magnitude", 'FontSize', 24)
+    xlabel("Timestamp", 'FontSize', 24)
+    title("Magnitude Distribution (Magnitudes Bigger Than 3, Magnitude Count: " + magnitude_count_str + ")", 'FontSize', 24)
+    saveas(gcf,"../figs/analysises/scatters/3_Magnitude_" + i + "_Location_scatter")
+    saveas(gcf,"../figs/analysises/scatters/3_Magnitude_" + i + "_Location_scatter","png")
+
 end
-if isKey(M,'Jan')
-    disp(M("Jan"))
+%%
+filterOptMap('bigger_than_magnitude') = 3.5;
+for i = 1:16
+    filterOptMap('location_label') = locations(i);
+    current_data = filterData(data, filterOptMap);
+
+    % Scatters
+    scatter(current_data(:,6),current_data(:,5))
+    magnitude_count_str = size(current_data,1);
+    ylabel("Magnitude", 'FontSize', 24)
+    xlabel("Timestamp", 'FontSize', 24)
+    title("Magnitude Distribution (Magnitudes Bigger Than 3.5, Magnitude Count: " + magnitude_count_str + ")", 'FontSize', 24)
+    saveas(gcf,"../figs/analysises/scatters/3_5_Magnitude_" + i + "_Location_scatter")
+    saveas(gcf,"../figs/analysises/scatters/3_5_Magnitude_" + i + "_Location_scatter","png")
+
 end
-%%
-
-keySet = {'Jan','Feb','Mar','Apr'};
-valueSet = {327.2 368.2 197.6 "asdas"};
-optMap = containers.Map(keySet,valueSet);
-
-optMap('wanted_colums_names') = ["Earthquake", "Time", "Latitude", "Longitude"];
-wanted_colums_names = optMap('wanted_colums_names')
-disp(wanted_colums_names(1))
-%%
-
-test = 5;
-
-test(1)
-
-test(end)
-
-
-
