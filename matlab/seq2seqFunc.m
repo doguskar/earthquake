@@ -188,14 +188,8 @@ function seq2seqFunc = seq2seqFunc(optMap)
     %'Plots','training-progress',...
 
     %% Train
-    net = trainNetwork(XTrain,YTrain,layers,options);
-
-    %% Predict
-    YPred = predict(net,XTest,'MiniBatchSize',1);
-
-    %% Show result
     learn_rate_str = strrep("" + optMap('initial_learn_rate'), ".", "_");
-    fig_file_name = datestr(datetime('now'),'yyyy-mm-dd_HH-MM-SS-FFF') + "_" + ...
+    saved_file_name = datestr(datetime('now'),'yyyy-mm-dd_HH-MM-SS-FFF') + "_" + ...
         optMap('bigger_than_magnitude') + "_Mag_" + ...
         optMap('location_label') + "_Loc_" + ...
         optMap('backward_size') + "_Bac_" + ...
@@ -207,7 +201,17 @@ function seq2seqFunc = seq2seqFunc(optMap)
         optMap('max_epochs') + "_Epo_" + ...
         optMap('mini_batch_size') + "_Bat_" + ...
         learn_rate_str + "_Lea";
-    fig_file_path = "../figs/experiments/";
+    saved_file_path = "../figs/experiments/models/";
+    
+    net = trainNetwork(XTrain,YTrain,layers,options);
+    
+    save(saved_file_path + saved_file_name);
+
+    %% Predict
+    YPred = predict(net,XTest,'MiniBatchSize',1);
+
+    %% Show result
+    saved_file_path = "../figs/experiments/";
     
     wanted_colums_names = optMap('wanted_colums_names');
     
@@ -279,8 +283,8 @@ function seq2seqFunc = seq2seqFunc(optMap)
         title(wanted_colums_names(2) + " RMSE = " + rmseRow2) 
     end
     
-    saveas(gcf, fig_file_path + "figs/" + fig_file_name)
-    saveas(gcf,  fig_file_path + fig_file_name, "png")
+    saveas(gcf, saved_file_path + "figs/" + saved_file_name)
+    saveas(gcf,  saved_file_path + saved_file_name, "png")
     
 
     

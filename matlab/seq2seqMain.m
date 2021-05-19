@@ -29,6 +29,14 @@ lon_end             =   lon_start           + backward_size + 6;
 
 bar(magnitude_ls);
 
+
+%% Test
+optMap('bigger_than_magnitude') = 5;
+optMap('max_epochs') = 1;
+optMap('feature_columns') = magnitude_start:magnitude_end;
+seq2seqFunc(optMap);
+
+
 %% Predict Magnitude
 optMap('wanted_columns') = 5;
 optMap('wanted_columns_str') = "mag";
