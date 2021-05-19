@@ -13,7 +13,7 @@ now = dt.now().strftime("%d-%m-%Y_%H.%M.%S")
 outputFileName = "extended_earthquake_" + str(now) + ".csv"
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-i","--input", help="Paths of input file", default="C:\\Users\dogus\\Documents\\1-dersler\\tez1\\2.donem\\data\\all_earthquakes_2021_04_05.csv")
+parser.add_argument("-i","--input", help="Paths of input file", default="C:\\Users\dogus\\Documents\\1-dersler\\tez1\\2.donem\\data\\all_earthquake_magnitude_bigger_than_4_2021_04_05.csv")
 parser.add_argument("-o","--output", help="Paths of output file", default=outputFileName)
 parser.add_argument("-b","--backward", help="backward size", default=30)
 args = parser.parse_args()

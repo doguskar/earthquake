@@ -16,7 +16,10 @@ optMap('location_label') = 6;
 backward_size = optMap('backward_size');
 
 %Column rages
-magnitude_start     =   8;
+%featur column start
+%9 -> earthquakes_2021_05_05_with_timestamp_and_location_label_2
+%8 -> earthquakes_2021_05_05_with_timestamp_and_location_label
+magnitude_start     =   9;  
 magnitude_end       =   magnitude_start     + backward_size + 6;
 depth_start         =   magnitude_end       + 1;
 depth_end           =   depth_start         + backward_size + 6;

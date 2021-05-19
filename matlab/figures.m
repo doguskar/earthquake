@@ -11,7 +11,6 @@ for i = 1:size(locations,2)
 end
 location_lables(:,1) = [];
 
-%%
 filterKeySet = {
     'bigger_than_magnitude' ...
     'location_label'
@@ -23,6 +22,8 @@ filterValueSet = {
 filterOptMap = containers.Map(filterKeySet,filterValueSet);
 
 bar(magnitudes)
+
+%%
 for k = 1:size(magnitudes,2)
     earthquake_counts = [];
     filterOptMap('bigger_than_magnitude') = magnitudes(k);
@@ -106,3 +107,12 @@ for i = 1:16
     saveas(gcf,"../figs/analysises/scatters/3_5_Magnitude_" + i + "_Location_scatter","png")
 
 end
+
+%%
+filterOptMap('bigger_than_magnitude') = 4;
+filterOptMap('location_label') = 6;
+filterOptMap('bigger_than_timestamp') = 0;
+current_data = filterData(data, filterOptMap);
+aha =current_data(:,8); 
+aha2 =current_data(:,6); 
+

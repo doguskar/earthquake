@@ -8,7 +8,7 @@ now = dt.now().strftime("%d-%m-%Y_%H.%M.%S")
 outputFileName = "Result_" + str(now) + ".csv"
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-i","--input", help="Paths of input file", default="20200831_20210404_3.0_9.0_56_7672.csv")
+parser.add_argument("-i","--input", help="Paths of input file", default="20210228_20210505_3.0_9.0_26_114.txt")
 parser.add_argument("-o","--output", help="Paths of output file", default=outputFileName)
 args = parser.parse_args()
 
