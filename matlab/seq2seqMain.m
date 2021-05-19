@@ -16,9 +16,6 @@ optMap('location_label') = 6;
 backward_size = optMap('backward_size');
 
 %Column rages
-%featur column start
-%9 -> earthquakes_2021_05_05_with_timestamp_and_location_label_2
-%8 -> earthquakes_2021_05_05_with_timestamp_and_location_label
 magnitude_start     =   9;  
 magnitude_end       =   magnitude_start     + backward_size + 6;
 depth_start         =   magnitude_end       + 1;
@@ -34,15 +31,17 @@ bar(magnitude_ls);
 
 
 %% Test
-optMap('bigger_than_magnitude') = 5;
+optMap('bigger_than_magnitude') = 3;
 optMap('max_epochs') = 1;
 optMap('feature_columns') = magnitude_start:magnitude_end;
 seq2seqFunc(optMap);
 
 
 %% Predict Magnitude
+%{
 optMap('wanted_columns') = 5;
 optMap('wanted_columns_str') = "mag";
+optMap('location_label') = 6;
 
 for magnitude = 1:size(magnitude_ls,2)
     optMap('bigger_than_magnitude') = magnitude_ls(magnitude);
@@ -88,7 +87,9 @@ for magnitude = 1:size(magnitude_ls,2)
         seq2seqFunc(optMap);
     end
 end
+%}
 %% Predict Timestamp
+%{
 optMap('wanted_columns') = 6;
 optMap('wanted_columns_str') = "tim";
 
@@ -126,8 +127,49 @@ for magnitude = 1:size(magnitude_ls,2)
         seq2seqFunc(optMap);
     end
 end
+%}
+%% Predict Hour Difference
+optMap('wanted_columns') = 8;
+optMap('wanted_columns_str') = "hou";
+optMap('location_label') = 6;
+
+for magnitude = 1:size(magnitude_ls,2)
+    optMap('bigger_than_magnitude') = magnitude_ls(magnitude);
+    for x=1:1
+        %timestamp
+        optMap('feature_columns') = timestamp_start:timestamp_end;
+        optMap('feature_columns_str') = "tim";
+        seq2seqFunc(optMap);
+
+        %timestamp & magnitude
+        optMap('feature_columns') = [timestamp_start:timestamp_end magnitude_start:magnitude_end];
+        optMap('feature_columns_str') = "mag_tim";
+        seq2seqFunc(optMap);
+
+        %timestamp & depth
+        optMap('feature_columns') = [timestamp_start:timestamp_end depth_start:depth_end];
+        optMap('feature_columns_str') = "dep_tim";
+        seq2seqFunc(optMap);
+
+        %timestamp & magnitude & depth
+        optMap('feature_columns') = [timestamp_start:timestamp_end magnitude_start:magnitude_end depth_start:depth_end];
+        optMap('feature_columns_str') = "mag_dep_tim";
+        seq2seqFunc(optMap);
+
+        %timestamp & lat & lon
+        optMap('feature_columns') = [timestamp_start:timestamp_end lat_start:lat_end lon_start:lon_end];
+        optMap('feature_columns_str') = "lat_lon_tim";
+        seq2seqFunc(optMap);
+
+        %timestamp & magnitude & depth & lat & lon
+        optMap('feature_columns') = [timestamp_start:timestamp_end magnitude_start:magnitude_end depth_start:depth_end lat_start:lat_end lon_start:lon_end];
+        optMap('feature_columns_str') = "mag_lat_lon_dep_tim";
+        seq2seqFunc(optMap);
+    end
+end
 
 %% Predict lat and lonx
+%{
 optMap('wanted_columns') = [2 3];
 optMap('wanted_columns_str') = "lat_lon";
 optMap('wanted_colums_names') = ["Latitude", "Longitude"];
@@ -172,8 +214,54 @@ for magnitude = 1:size(magnitude_ls,2)
         seq2seqFunc(optMap);
     end
 end
+%}
+%% Predict loc
+optMap('wanted_columns') = 7;
+optMap('wanted_columns_str') = "loc";
+optMap('location_label') = 0;
+
+for magnitude = 1:size(magnitude_ls,2)
+    optMap('bigger_than_magnitude') = magnitude_ls(magnitude);
+    for x=1:1
+        %lat & lon
+        optMap('feature_columns') = [lat_start:lat_end lon_start:lon_end];
+        optMap('feature_columns_str') = "lat_lon";
+        seq2seqFunc(optMap);
+
+        %lat & lon & magnitude
+        optMap('feature_columns') = [lat_start:lat_end lon_start:lon_end magnitude_start:magnitude_end];
+        optMap('feature_columns_str') = "mag_lat_lon";
+        seq2seqFunc(optMap);
+
+        %lat & lon & depth
+        optMap('feature_columns') = [lat_start:lat_end lon_start:lon_end depth_start:depth_end];
+        optMap('feature_columns_str') = "lat_lon_dep";
+        seq2seqFunc(optMap);
+
+        %lat & lon & magnitude & depth
+        optMap('feature_columns') = [lat_start:lat_end lon_start:lon_end magnitude_start:magnitude_end depth_start:depth_end];
+        optMap('feature_columns_str') = "mag_lat_lon_dep";
+        seq2seqFunc(optMap);
+
+        %lat & lon & magnitude & timestamp
+        optMap('feature_columns') = [lat_start:lat_end lon_start:lon_end magnitude_start:magnitude_end timestamp_start:timestamp_end];
+        optMap('feature_columns_str') = "mag_lat_lon_tim";
+        seq2seqFunc(optMap);
+
+        %lat & lon & depth & timestamp
+        optMap('feature_columns') = [lat_start:lat_end lon_start:lon_end depth_start:depth_end timestamp_start:timestamp_end];
+        optMap('feature_columns_str') = "lat_lon_dep_tim";
+        seq2seqFunc(optMap);
+
+        %lat & lon & magnitude & depth & timestamp
+        optMap('feature_columns') = [lat_start:lat_end lon_start:lon_end magnitude_start:magnitude_end depth_start:depth_end timestamp_start:timestamp_end];
+        optMap('feature_columns_str') = "mag_lat_lon_dep_tim";
+        seq2seqFunc(optMap);
+    end
+end
 
 %% Predict Magnitude and Timestamp
+%{
 optMap('wanted_columns') = [5 6];
 optMap('wanted_columns_str') = "mag_tim";
 optMap('wanted_colums_names') = ["Magnitude", "Timestamp"];
@@ -223,7 +311,58 @@ for magnitude = 1:size(magnitude_ls,2)
         seq2seqFunc(optMap);
     end
 end
+%}
 
+%% Predict Magnitude and Hour Differece
+optMap('wanted_columns') = [5 8];
+optMap('wanted_columns_str') = "mag_hou";
+optMap('wanted_colums_names') = ["Magnitude", "Hour Difference"];
+optMap('location_label') = 6;
+
+for magnitude = 1:size(magnitude_ls,2)
+    optMap('bigger_than_magnitude') = magnitude_ls(magnitude);
+    for x=1:1
+        %magnitude
+        optMap('feature_columns') = magnitude_start:magnitude_end;
+        optMap('feature_columns_str') = "mag";
+        seq2seqFunc(optMap);
+
+        %magnitude & depth
+        optMap('feature_columns') = [magnitude_start:magnitude_end depth_start:depth_end];
+        optMap('feature_columns_str') = "mag_dep";
+        seq2seqFunc(optMap);
+
+        %magnitude & timestamp
+        optMap('feature_columns') = [magnitude_start:magnitude_end timestamp_start:timestamp_end];
+        optMap('feature_columns_str') = "mag_tim";
+        seq2seqFunc(optMap);
+
+        %magnitude & depth & timestamp
+        optMap('feature_columns') = [magnitude_start:magnitude_end depth_start:depth_end timestamp_start:timestamp_end];
+        optMap('feature_columns_str') = "mag_dep_tim";
+        seq2seqFunc(optMap);
+
+        %magnitude & lat & lon
+        optMap('feature_columns') = [magnitude_start:magnitude_end lat_start:lat_end lon_start:lon_end];
+        optMap('feature_columns_str') = "mag_lat_lon";
+        seq2seqFunc(optMap);
+
+        %magnitude & lat & lon & depth
+        optMap('feature_columns') = [magnitude_start:magnitude_end lat_start:lat_end lon_start:lon_end depth_start:depth_end];
+        optMap('feature_columns_str') = "mag_lat_lon_dep";
+        seq2seqFunc(optMap);
+
+        %magnitude & lat & lon & timestamp
+        optMap('feature_columns') = [magnitude_start:magnitude_end lat_start:lat_end lon_start:lon_end timestamp_start:timestamp_end];
+        optMap('feature_columns_str') = "mag_lat_lon_tim";
+        seq2seqFunc(optMap);
+
+        %magnitude & lat & lon & depth & timestamp
+        optMap('feature_columns') = [magnitude_start:magnitude_end lat_start:lat_end lon_start:lon_end depth_start:depth_end timestamp_start:timestamp_end];
+        optMap('feature_columns_str') = "mag_lat_lon_dep_tim";
+        seq2seqFunc(optMap);
+    end
+end
 
 %% Predict Magnitude and Location label
 optMap('wanted_columns') = [5 7];

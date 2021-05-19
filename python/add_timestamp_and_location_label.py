@@ -22,12 +22,10 @@ df['datetime'] = pd.to_datetime(df['datetime'], format='%Y-%m-%d %H:%M:%S.%f')
 df = df.sort_values(by='datetime')#, ascending=False
 
 timestamp_row = []
-timestamp2_row = []
 location_labels = []
 
 for index, row in df.iterrows():
     timestamp_row.append(row['datetime'].timestamp())
-    timestamp2_row.append(round(row['datetime'].timestamp()/60))
 
     lat = row['lat']
     lon = row['lon']
@@ -68,6 +66,5 @@ for index, row in df.iterrows():
 
 df['timestamp'] = timestamp_row
 df['location_label'] = location_labels
-df['timestamp2'] = timestamp2_row
 
 df.to_csv(outputFileName, index=False)

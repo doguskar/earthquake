@@ -92,15 +92,19 @@ function seq2seqFunc = seq2seqFunc(optMap)
     data = filterData(data, filterOptMap);
 
     % Preprocessing
+    % add hour differece between previous and current earthquake
+    new_hour_diff_col = createDiffHourCol(data(:,6));
+    data = [data new_hour_diff_col];
+    
     backward_size = optMap('backward_size');
 
-    newMagnitudeCols = createFeature(data(:,5), backward_size);     % 8                             ->  8 + backward_size + 6
-    newDepthCols = createFeature(data(:,4), backward_size);         % 9 + backward_size + 7         ->  9 + 2x(backward_size + 6)
-    newTimestampCols = createFeature(data(:,6), backward_size);     % 10 + 2x(backward_size + 7)     ->  10 + 3x(backward_size + 6)
+    newMagnitudeCols = createFeature(data(:,5), backward_size);     
+    newDepthCols = createFeature(data(:,4), backward_size);         
+    newTimestampCols = createFeature(data(:,6), backward_size);     
     newLatCols = createFeature(data(:,2), backward_size);
     newLonCols = createFeature(data(:,3), backward_size);
     %{
-    magnitude_start     =   8;
+    magnitude_start     =   9;
     magnitude_end       =   magnitude_start     + backward_size + 6;
     depth_start         =   magnitude_end       + 1;
     depth_end           =   depth_start         + backward_size + 6;
